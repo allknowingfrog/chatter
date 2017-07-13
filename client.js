@@ -6,6 +6,8 @@ input.setPrompt(color.set('<me> ', 'green'));
 var socket = require('socket.io-client').connect('http://' + address);
 out('Connected to ' + address);
 
+input.on('SIGINT', quit);
+
 login();
 
 function login() {
@@ -32,8 +34,7 @@ function init() {
                 switch(cmd) {
                     case 'quit':
                     case 'q':
-                        socket.disconnect();
-                        process.exit();
+                        quit();
                         break;
                     case 'whisper':
                     case 'w':
@@ -76,4 +77,13 @@ function out(msg) {
     process.stdout.cursorTo(0);
     console.log(msg);
     input.prompt(true);
+}
+
+function quit() {
+    socket.disconnect();
+    input.close();
+    process.stdout.clearLine();
+    process.stdout.cursorTo(0);
+    console.log('Goodbye!');
+    process.exit();
 }
