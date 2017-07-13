@@ -1,13 +1,16 @@
-var io = require('socket.io').listen(3636);
-console.log('Listening on 3636');
+var port = process.argv.length > 2 ? process.argv[2] : 3636;
+var io = require('socket.io').listen(port);
+console.log('Listening on ' + port);
 
 var users = {};
 
 io.sockets.on('connection', function(socket) {
     var added = false;
 
-    socket.on('nick', function(data) {
-        if(added) return;
+    socket.on('nick', function(data, callback) {
+        if(added || users.hasOwnProperty(data)) return callback(false);
+
+        callback(true);
 
         added = true;
         socket.username = data;
@@ -28,7 +31,13 @@ io.sockets.on('connection', function(socket) {
                     username: socket.username,
                     message: data.message
                 });
+            } else {
+                socket.emit('notice', 'No user named ' + data.username);
             }
+        });
+
+        socket.on('me', function(data) {
+            socket.broadcast.emit('notice', socket.username + ' ' + data);
         });
 
         socket.on('disconnect', function () {
