@@ -1,7 +1,7 @@
 var address = process.argv.length > 2 ? process.argv[2] : 'localhost:3636';
 var chalk = require('chalk');
 var input = require('readline').createInterface(process.stdin, process.stdout);
-input.setPrompt(chalk.magenta('<me> '));
+input.setPrompt(chalk.magenta(tag('me')));
 
 var socket = require('socket.io-client').connect('http://' + address);
 
@@ -83,15 +83,15 @@ function init() {
     });
 
     socket.on('message', function(data) {
-        out(chalk.green('<' + data.username + '> ') + data.message);
+        out(chalk.green(tag(data.username)) + data.message);
     });
 
     socket.on('whisper', function(data) {
-        out(chalk.yellow('<' + data.username + '> ') + data.message);
+        out(chalk.yellow(tag(data.username) + data.message));
     });
 
     socket.on('notice', function(data) {
-        out(chalk.cyan(data));
+        out('              ' + chalk.cyan(data));
     });
 }
 
@@ -100,6 +100,10 @@ function out(msg) {
     process.stdout.cursorTo(0);
     console.log(msg);
     input.prompt(true);
+}
+
+function tag(str) {
+    return String('            ' + str).slice(-12) + ': ';
 }
 
 function quit() {
