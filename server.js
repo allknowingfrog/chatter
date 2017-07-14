@@ -4,6 +4,17 @@ console.log('Listening on ' + port);
 
 var users = {};
 
+process.on('SIGINT', function() {
+    for(var u in users) {
+        users[u].emit('notice', 'Server is shutting down');
+        users[u].disconnect();
+    }
+    process.stdout.clearLine();
+    process.stdout.cursorTo(0);
+    console.log('Goodbye!');
+    process.exit();
+});
+
 io.sockets.on('connection', function(socket) {
     var added = false;
 
@@ -37,7 +48,11 @@ io.sockets.on('connection', function(socket) {
         });
 
         socket.on('me', function(data) {
-            socket.broadcast.emit('notice', socket.username + ' ' + data);
+            io.emit('notice', socket.username + ' ' + data);
+        });
+
+        socket.on('users', function(data, callback) {
+            callback('Users: ' + Object.keys(users).join(', '));
         });
 
         socket.on('disconnect', function () {

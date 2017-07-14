@@ -4,11 +4,22 @@ var input = require('readline').createInterface(process.stdin, process.stdout);
 input.setPrompt(color.set('<me> ', 'green'));
 
 var socket = require('socket.io-client').connect('http://' + address);
-out('Connected to ' + address);
 
 input.on('SIGINT', quit);
 
-login();
+socket.on('connect_error', function() {
+    console.log('Unable to connect, retrying...');
+});
+
+socket.on('disconnect', function() {
+    out('Server has disconnected');
+    quit();
+});
+
+socket.on('connect', function() {
+    out('Connected to ' + address);
+    login();
+});
 
 function login() {
     input.question('Please enter a nickname: ', function(name) {
@@ -24,6 +35,8 @@ function login() {
 }
 
 function init() {
+    out('Type "/help" for available commands');
+
     input.prompt(true);
 
     input.on('line', function(data) {
@@ -32,9 +45,23 @@ function init() {
                 var index = data.indexOf(' ');
                 var cmd = index == -1 ? data.substring(1) : data.substring(1, index);
                 switch(cmd) {
+                    case 'h':
+                    case 'help':
+                        out('Available commands: (h)elp, (m)e, (q)uit, (u)sers, (w)hisper');
+                        break;
+                    case 'me':
+                    case 'm':
+                        socket.emit('me', data.substring(index + 1));
+                        break;
                     case 'quit':
                     case 'q':
                         quit();
+                        break;
+                    case 'users':
+                    case 'u':
+                        socket.emit('users', null, function(data) {
+                            out(data);
+                        });
                         break;
                     case 'whisper':
                     case 'w':
@@ -43,10 +70,6 @@ function init() {
                             username: data.substring(index + 1, next),
                             message: data.substring(next + 1)
                         });
-                        break;
-                    case 'me':
-                    case 'm':
-                        socket.emit('me', data.substring(index + 1));
                         break;
                     default:
                         out('Unknown command: ' + cmd);
