@@ -1,7 +1,7 @@
 var address = process.argv.length > 2 ? process.argv[2] : 'localhost:3636';
-var color = require('ansi-color');
+var chalk = require('chalk');
 var input = require('readline').createInterface(process.stdin, process.stdout);
-input.setPrompt(color.set('<me> ', 'green'));
+input.setPrompt(chalk.magenta('<me> '));
 
 var socket = require('socket.io-client').connect('http://' + address);
 
@@ -22,12 +22,12 @@ socket.on('connect', function() {
 });
 
 function login() {
-    input.question('Please enter a nickname: ', function(name) {
+    input.question(chalk.green('Please enter a nickname: '), function(name) {
         socket.emit('nick', name, function(data) {
             if(data) {
                 init();
             } else {
-                out(color.set(name + ' is invalid or unavailable', 'red'));
+                out(chalk.red(name + ' is invalid or unavailable'));
                 login();
             }
         });
@@ -83,15 +83,15 @@ function init() {
     });
 
     socket.on('message', function(data) {
-        out(color.set('<' + data.username + '> ', 'green') + data.message);
+        out(chalk.green('<' + data.username + '> ') + data.message);
     });
 
     socket.on('whisper', function(data) {
-        out(color.set('<' + data.username + '> ', 'yellow') + data.message);
+        out(chalk.yellow('<' + data.username + '> ') + data.message);
     });
 
     socket.on('notice', function(data) {
-        out(color.set(data, 'cyan'));
+        out(chalk.cyan(data));
     });
 }
 

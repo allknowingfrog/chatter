@@ -6,6 +6,6 @@
     "dependencies": {
         "socket.io": "latest",
         "socket.io-client": "latest",
-        "ansi-color": "latest"
+        "chalk": "latest"
     }
 }
