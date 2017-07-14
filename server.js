@@ -27,7 +27,9 @@ io.sockets.on('connection', function(socket) {
         socket.username = data;
         users[data] = socket;
 
-        socket.broadcast.emit('notice', socket.username + ' has joined');
+        var msg = data + ' has joined';
+        console.log(msg);
+        socket.broadcast.emit('notice', msg);
 
         socket.on('message', function(data) {
             socket.broadcast.emit('message', {
@@ -56,7 +58,9 @@ io.sockets.on('connection', function(socket) {
         });
 
         socket.on('disconnect', function () {
-            socket.broadcast.emit('notice', socket.username + ' has left');
+            var msg = socket.username + ' has left';
+            console.log(msg);
+            socket.broadcast.emit('notice', msg);
             delete users[socket.username];
         });
     });

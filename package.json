@@ -7,5 +7,7 @@
         "socket.io": "latest",
         "socket.io-client": "latest",
         "chalk": "latest"
-    }
+    },
+    "license" : "MIT",
+    "repository": "https://github.com/allknowingfrog/chatter"
 }
